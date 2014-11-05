@@ -51,7 +51,10 @@ public class Tablero {
 					slot.setSorpresa(nuevoSlot.getSorpresa());
 				}
 			}
+			mano.remove(posicionMano);
 		}
+		
+		
 		
 		public void atacar() {
 			// TODO: Revolear eventos como un campeón
@@ -121,12 +124,21 @@ public class Tablero {
 		J2.sacarCarta();
 	}
 	
-	private Jugador getJugadorEnemigo() {
+	public Jugador getJugadorEnemigo() {
 		if(turno) {
 			return J2;
 		}
 		else {
 			return J1;
+		}
+	}
+	
+	public Jugador getJugadorActual() {
+		if(turno) {
+			return J1;
+		}
+		else {
+			return J2;
 		}
 	}
 }
