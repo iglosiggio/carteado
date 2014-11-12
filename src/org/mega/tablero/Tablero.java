@@ -1,10 +1,15 @@
 package org.mega.tablero;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+
+import net.engio.mbassy.bus.BusFactory;
+import net.engio.mbassy.bus.SyncMessageBus;
+import net.engio.mbassy.bus.common.ISyncMessageBus;
 
 import org.mega.tablero.cartas.Guerrero;
 import org.mega.tablero.cartas.Item;
@@ -17,8 +22,11 @@ public class Tablero {
 	private boolean turno;
 	private Jugador J1;
 	private Jugador J2;
+	@SuppressWarnings("unchecked")
+	private ISyncMessageBus<Evento, SyncMessageBus<Evento>.SyncPostCommand> eventBus = BusFactory.SynchronousOnly();
 
 	public class Jugador {
+		boolean atacóEnEsteTurno = false;
 		Deque<Item> mazo;
 		Deque<SlotDeCampo> campo;
 		List<Item> mano;
@@ -30,12 +38,21 @@ public class Tablero {
 			this.mano = new ArrayList<Item>();
 		}
 		
-		public void sacarCarta() {
+		private void sacarCarta() {
 			// TODO: Revolear eventos como un campeón
 			mano.add(mazo.poll());
 		}
 		
 		public void ponerCarta(int posicionMano) {
+			if(!esTurnoDe(this)) {
+				throw new RuntimeException("No es tu turno maquinola");
+			}
+			else {
+				_ponerCarta(posicionMano);
+			}
+		}
+		
+		private void _ponerCarta(int posicionMano) {
 			Item carta = mano.get(posicionMano);
 			SlotDeCampo slot = campo.peek();
 			if(carta.checkSlot(slot)) {
@@ -54,27 +71,49 @@ public class Tablero {
 			mano.remove(posicionMano);
 		}
 		
-		
-		
 		public void atacar() {
+			if(esTurnoDe(this)) {
+				throw new RuntimeException("No es tu turno maquinola");
+			}
+			else if(atacóEnEsteTurno) {
+				throw new RuntimeException("Ya atacaste lince");
+			}
+			else {
+				atacóEnEsteTurno = true;
+				_atacar();
+			}
+		}
+		
+		private void _atacar() {
 			// TODO: Revolear eventos como un campeón
 			SlotDeCampo slot = campo.peek();
 			Guerrero guerrero = slot.getGuerrero();
 			Jugador enemigo = Tablero.this.getJugadorEnemigo();
 			Guerrero guerreroEnemigo = enemigo.getGuerreroActual();
 			
-			// TODO: Tener los [PRE/POST]
-			if(despacharEvento(new EventoAtaque(Evento.TipoEvento.PRE, Tablero.this, guerrero, guerreroEnemigo))) {
-				guerreroEnemigo.atacadoPor(guerrero);
-				despacharEvento(new EventoAtaque(Evento.TipoEvento.POST, Tablero.this, guerrero, guerreroEnemigo));
+			// Nuestro guerrero ataca al de ellos
+			{
+				EventoAtaque pre_evento = new EventoAtaque(Evento.TipoEvento.PRE, Tablero.this, guerrero, guerreroEnemigo);
+				eventBus.post(pre_evento);
+				if(pre_evento.esValido()) {
+					guerreroEnemigo.atacadoPor(guerrero);
+					EventoAtaque post_evento = new EventoAtaque(Evento.TipoEvento.POST, Tablero.this, guerrero, guerreroEnemigo);
+					eventBus.post(post_evento);
+				}
 			}
-			if(despacharEvento(new EventoAtaque(Evento.TipoEvento.PRE, Tablero.this, guerrero, guerreroEnemigo))) {
-				guerrero.atacadoPor(guerreroEnemigo);
-				despacharEvento(new EventoAtaque(Evento.TipoEvento.POST, Tablero.this, guerrero, guerreroEnemigo));
+			// Su guerrero nos ataca
+			{
+				EventoAtaque pre_evento = new EventoAtaque(Evento.TipoEvento.PRE, Tablero.this, guerreroEnemigo, guerrero);
+				eventBus.post(pre_evento);
+				if(pre_evento.esValido()) {
+					guerrero.atacadoPor(guerreroEnemigo);
+					EventoAtaque post_evento = new EventoAtaque(Evento.TipoEvento.POST, Tablero.this, guerreroEnemigo, guerrero);
+					eventBus.post(post_evento);
+				}
 			}
 		}
 		
-		public Guerrero getGuerreroActual() {
+		private Guerrero getGuerreroActual() {
 			return campo.peek().getGuerrero();
 		}
 		
@@ -82,17 +121,8 @@ public class Tablero {
 			return Collections.unmodifiableCollection(campo);
 		}
 		
-		public boolean despacharEvento(Evento evento) {
-			for(SlotDeCampo slot : campo) {
-				Sorpresa sorpresa = slot.getSorpresa();
-				Pergamino pergamino = slot.getPergamino();
-				if(sorpresa.recibirEvento(evento)) {
-					if(pergamino.aplicarEfecto(evento)) {
-						return false;
-					}
-				}
-			}
-			return true;
+		public void pasarTurno() {
+			cambiarTurno();
 		}
 	}
 	
@@ -139,6 +169,21 @@ public class Tablero {
 		}
 		else {
 			return J2;
+		}
+	}
+	
+	public void cambiarTurno() {
+		turno = !turno;
+		//eventBus.publish("Cambio de turno, ahora: " + Boolean.toString(turno));
+	}
+	
+	public boolean esTurnoDe(Jugador jugador) {
+		if(jugador == J1 && turno) {
+			return true;
+		} else if(jugador == J2 && !turno) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
