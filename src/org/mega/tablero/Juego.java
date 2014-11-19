@@ -21,8 +21,8 @@ public final class Juego {
 	
 	public static boolean publicarEvento(Evento ev, Runnable callback) {
 		eventBus.publish(ev);
-			if(ev.esValido()) {
-				callback.run();
+		if(ev.esValido()) {
+			callback.run();
 			ev.hacerPost();
 			eventBus.post(ev);
 			return true;
