@@ -32,7 +32,7 @@ public abstract class Sorpresa {
 	public abstract boolean recibirEvento(Evento evento);
 	
 	public static Sorpresa getCartaBase() {
-		return new Sorpresa(0, "Sopresa nula", "") {
+		return new Sorpresa(0, "Sorpresa nula", "") {
 			@Override
 			public boolean recibirEvento(Evento evento) {
 				return false;

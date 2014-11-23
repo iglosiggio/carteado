@@ -32,7 +32,7 @@ public abstract class Pergamino {
 	public abstract boolean aplicarEfecto(Evento evento);
 	
 	public static Pergamino getCartaBase() {
-		return new Pergamino(0, "Efecto nulo", "") {
+		return new Pergamino(0, "Pergamino nulo", "") {
 			@Override
 			public boolean aplicarEfecto(Evento evento) {
 				return false;
