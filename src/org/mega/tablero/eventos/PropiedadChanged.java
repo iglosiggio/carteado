@@ -1,6 +1,5 @@
-package org.mega.tablero.cartas;
+package org.mega.tablero.eventos;
 
-import org.mega.tablero.eventos.Evento;
 
 public class PropiedadChanged<T, O> extends Evento {
     /**

@@ -1,8 +1,9 @@
 package org.mega.tablero.cartas;
 
 import org.mega.tablero.Juego;
+import org.mega.tablero.eventos.PropiedadChanged;
 
-public class Guerrero implements CartaEnJuego {
+public class Guerrero implements Carta {
 	int nivel;
 	String nombre;
 	String descripcion;

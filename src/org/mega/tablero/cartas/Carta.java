@@ -1,6 +1,6 @@
 package org.mega.tablero.cartas;
 
-public interface CartaEnJuego {
+public interface Carta {
 
 	public abstract int getNivel();
 

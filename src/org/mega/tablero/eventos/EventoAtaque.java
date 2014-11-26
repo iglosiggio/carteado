@@ -1,28 +1,28 @@
 package org.mega.tablero.eventos;
 
-import org.mega.tablero.cartas.CartaEnJuego;
+import org.mega.tablero.cartas.Carta;
 
 public class EventoAtaque extends Evento {
 	
-	private CartaEnJuego atacante;
-	private CartaEnJuego recipiente;
+	private Carta atacante;
+	private Carta recipiente;
 	
-	public EventoAtaque(CartaEnJuego atacante, CartaEnJuego recipiente) {
+	public EventoAtaque(Carta atacante, Carta recipiente) {
 		this.atacante = atacante;
 		this.recipiente = recipiente;
 	}
 	
-	public EventoAtaque(TipoEvento tipo, CartaEnJuego atacante, CartaEnJuego recipiente) {
+	public EventoAtaque(TipoEvento tipo, Carta atacante, Carta recipiente) {
 		super(tipo);
 		this.atacante = atacante;
 		this.recipiente = recipiente;
 	}
 
-	public CartaEnJuego getAtacante() {
+	public Carta getAtacante() {
 		return atacante;
 	}
 	
-	public CartaEnJuego getRecipiente() {
+	public Carta getRecipiente() {
 		return recipiente;
 	}
 }

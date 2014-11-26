@@ -10,13 +10,12 @@ import org.mega.tablero.cartas.Item;
 import org.mega.tablero.eventos.Evento;
 
 public final class Juego {
-    private static Tablero tablero;
-    private static ISyncMessageBus<Evento, SyncMessageBus<Evento>.SyncPostCommand> eventBus;
-
     @SuppressWarnings("unchecked")
+    private static ISyncMessageBus<Evento, SyncMessageBus<Evento>.SyncPostCommand> eventBus = BusFactory.SynchronousOnly();
+    private static Tablero tablero;
+    
     public static void empezarJuego(List<Item> mazo1, List<Item> mazo2) {
 	tablero = new Tablero(mazo1, mazo2);
-	eventBus = BusFactory.SynchronousOnly();
     }
 
     public static boolean publicarEvento(Evento ev) {

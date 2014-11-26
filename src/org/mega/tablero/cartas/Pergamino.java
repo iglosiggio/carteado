@@ -2,8 +2,9 @@ package org.mega.tablero.cartas;
 
 import org.mega.tablero.Juego;
 import org.mega.tablero.eventos.Evento;
+import org.mega.tablero.eventos.PropiedadChanged;
 
-public abstract class Pergamino implements CartaEnJuego {
+public abstract class Pergamino implements Carta {
 	int nivel;
 	String nombre;
 	String descripcion;
